@@ -78,6 +78,10 @@ Technologies Used
    The bot provides responses based on the IRS Tax Guide
 
 ![Header](img/Header.png)
+
+Example output(home page)
 ![Example Output](img/ExampleOutput.png)
+
+Deductions calculator output
 ![Calculator Output](img/Cal.png)
 

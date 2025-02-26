@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U.S. Tax Deduction Calculator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            max-width: 90%;
+            margin: 30px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #007bff;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        .form-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .form-group {
+            width: 48%;
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+            color: #0056b3;
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        .calculate-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: #007BFF;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .calculate-btn:hover {
+            background: #0056b3;
+        }
+        .senior-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: flex-start;
+            width: fit-content;
+        }
+        .senior-group label {
+            white-space: nowrap;
+        }
+        .info-box {
+            background: #e9f5ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        #chatbot-message {
+            position: fixed;
+            bottom: 80px; /* Adjust above chatbot icon */
+            right: 20px;
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        #chatbot-message a {
+            color: #007bff;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        
+        #chatbot-message a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📊 U.S. Tax Deduction Calculator</h1>
+    <form action="/calculate" method="post">
+        <div class="form-container">
+            <div class="form-group">
+                <label for="taxable-income">Taxable Income ($):</label>
+                <input type="number" id="taxable-income" name="taxable-income" placeholder="Enter taxable income" required>
+            </div>
+
+            <div class="form-group">
+                <label for="filing-status">Filing Status:</label>
+                <select id="filing-status" name="filing-status">
+                    <option value="single">Single</option>
+                    <option value="married">Married (Joint)</option>
+                    <option value="head">Head of Household</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="standard-deduction">Standard Deduction ($):</label>
+                <input type="number" id="standard-deduction" placeholder="Enter amount">
+            </div>
+
+            <div class="form-group">
+                <label for="mortgage-interest">Mortgage Interest ($):</label>
+                <input type="number" id="mortgage-interest" name="mortgage-interest" placeholder="Enter amount">
+            </div>
+
+            <div class="form-group">
+                <label for="student-loan">Student Loan Interest ($):</label>
+                <input type="number" id="student-loan" placeholder="Enter amount">
+            </div>
+
+            <div class="form-group">
+                <label for="medical-expenses">Medical & Dental Expenses ($):</label>
+                <input type="number" id="medical-expenses" placeholder="Enter amount">
+            </div>
+
+            <div class="form-group">
+                <label for="charity">Charitable Donations ($):</label>
+                <input type="number" id="charity" placeholder="Enter amount">
+            </div>
+
+            <div class="form-group">
+                <label for="property-taxes">State & Local Taxes (SALT) ($):</label>
+                <input type="number" id="property-taxes" placeholder="Enter amount">
+            </div>
+
+            <div class="form-group">
+                <label for="retirement">Traditional IRA Contributions ($):</label>
+                <input type="number" id="retirement" placeholder="Enter amount">
+            </div>
+
+            <div class="form-group">
+                <label for="self-employment">Self-Employment Deductions ($):</label>
+                <input type="number" id="self-employment" placeholder="Enter amount">
+            </div>
+
+            <div class="senior-group">
+                <input type="checkbox" id="senior" name="senior">
+                <label for="senior">Are you 65 or older?</label>
+            </div>
+        </div>
+        <button type="submit" class="calculate-btn">Calculate Deductions</button>
+    </form>
+
+{% if result %}
+<div class="container">
+    <h2>🧾 Calculation Results</h2>
+    <p><strong>Taxable Income Before Deductions:</strong> ${{ result['taxableIncome'] }}</p>
+    <p><strong>Total Deductions:</strong> ${{ result['totalDeductions'] }}</p>
+    <p><strong>Final Taxable Income:</strong> ${{ result['finalTaxableIncome'] }}</p>
+    <!-- result=None -->
+</div>
+<script>
+    window.onload = function() {
+        if (performance.navigation.type === 1) {  // Check if it's a reload
+            window.location.href = window.location.pathname;  // Reload without result
+        }
+    };
+</script>
+{% endif %}
+</div>
+
+<div class="container">
+    <h1>📊 U.S. Tax Deduction Information</h1>
+    <p>Below are the applicable deductions that can reduce your taxable income:</p>
+
+    <h3>📌 1. *Standard Deduction*</h3>
+    <ul>
+        <li><strong>Single:</strong> $14,600</li>
+        <li><strong>Married (Jont):</strong> $29,200</li>
+        <li><strong>Head of Household:</strong> $21,900</li>
+        <li><strong>Additional for 65+:</strong> $1,950 (Single), $1,550 (Married)</li>
+    </ul>
+
+    <h3>🏡 2. *Mortgage Interest Deduction*</h3>
+    <ul>
+        <li>Deductible for home loans up to *$750,000*.</li>
+    </ul>
+
+    <h3>🎓 3. *Student Loan Interest Deduction*</h3>
+    <ul>
+        <li>Up to *$2,500* deduction for student loan interest.</li>
+    </ul>
+
+    <h3>🩺 4. *Medical & Dental Expenses*</h3>
+    <ul>
+        <li>Only expenses exceeding *7.5% of AGI* are deductible.</li>
+    </ul>
+
+    <h3>💖 5. *Charitable Donations*</h3>
+    <ul>
+        <li>Up to *60% of AGI* is deductible.</li>
+    </ul>
+
+    <h3>🏦 6. *State & Local Taxes (SALT)*</h3>
+    <ul>
+        <li>Deduction limit of *$10,000*.</li>
+    </ul>
+
+    <h3>💼 7. *Retirement & Self-Employment Deductions*</h3>
+    <ul>
+        <li><strong>Traditional IRA Contributions:</strong> Up to *$7,000* ($8,000 if 50+).</li>
+        <li><strong>Self-Employed:</strong> Can deduct *50% of self-employment tax*.</li>
+    </ul>
+
+    <div class="info-box">
+        <h2>💡 Key Takeaways</h2>
+        <ul>
+            <li>If *itemized deductions* are less than the *standard deduction*, take the standard deduction.</li>
+            <li>Mortgage and student loan interest are key tax benefits.</li>
+            <li>Medical expenses are deductible only if they exceed *7.5% of AGI*.</li>
+        </ul>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/gh/edenai/yodabot@e4f753f/embed.js?project=233753b0-1719-4795-9d2b-0c84742c7b65&provider=openai&model=gpt-4"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let chatbotMessage = document.getElementById("chatbot-message");
+
+        function hideMessage() {
+            chatbotMessage.style.display = "none";
+        }
+
+        function showMessage() {
+            chatbotMessage.style.display = "block";
+        }
+
+        // Initially show message for 2 seconds, then hide
+        setTimeout(() => {
+            hideMessage();
+        }, 2000);
+
+        // Detect when chatbot is opened by clicking the chatbot icon
+        document.addEventListener("click", function (event) {
+            let chatbotIframe = document.querySelector("iframe");
+
+            if (event.target.closest("#chatbot-message")) {
+                // Message clicked, hide it immediately
+                hideMessage();
+            }
+
+            if (chatbotIframe) {
+                let isChatbotVisible = chatbotIframe.style.display !== "none";
+
+                if (isChatbotVisible) {
+                    hideMessage(); // Chatbot opened, hide message
+                }
+            }
+        });
+
+        // Check every second if chatbot is closed, then show message again
+        setInterval(() => {
+            let chatbotIframe = document.querySelector("iframe");
+            if (chatbotIframe && chatbotIframe.style.display === "none") {
+                showMessage(); // Show message only when chatbot is closed
+            }
+        }, 1000);
+    });
+</script>
+
+</body>
+</html>

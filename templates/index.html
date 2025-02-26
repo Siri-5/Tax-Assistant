@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700|"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/awsm.css/dist/awsm.min.css"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="https://fonts.gstatic.com/s/i/gcpiconsgreys/document_ai/v1/web-18dp/greys_document_ai_color_1x_web_18dp.png"
+    />
+    <title>Document AI: Calculate Tax Returns</title>
+  </head>
+
+  <body>
+    <header>
+      <a href="/">
+        <img
+          src="Header.png"
+          alt=""
+        />
+        <h1>Document AI: Calculate Tax Returns</h1>
+      </a>
+    </header>
+    <main id="active-area">
+      <!-- Display Tax Return -->
+      {% if tax_data %}
+      <table class="tax-return">
+        <caption>
+          IRS Form 1040
+        </caption>
+        <thead>
+          <tr>
+            <th>Line Number</th>
+            <th>Description</th>
+            <th>Value</th>
+            <th>Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in tax_data %}
+          <tr>
+            {% for col in row %}
+            <td>{{col}}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <hr />
+
+      <a href="/delete_data" class="button">Delete Saved Data</a>
+
+      <!-- Display Extracted Data -->
+      {% elif extracted_data %} {% for document_id, document_data in
+      extracted_data.items() %}
+      <table>
+        <caption>
+          {{ document_id }}
+        </caption>
+        <thead>
+          <tr>
+            <th>Field Name</th>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for key, value in document_data.items() %}
+          <tr>
+            <td>{{ key }}</td>
+            <td>{{ value }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <hr />
+
+      {% endfor %}
+      <a href="/view_tax_bill" class="button">Calculate Taxes</a>
+
+      {% elif message_error %}
+      <p>{{message_error}}</p>
+
+      <!-- Successful Processing Confirmation-->
+      {% elif message_success %}
+      <p>{{message_success}}</p>
+      <!-- Display Status Updates -->
+      {% if status_messages %}
+      <pre class="status-messages">
+                {% for message in status_messages %}
+                {{message}}
+                {% endfor %}
+            </pre
+      >
+      {% endif %}
+      <a href="/view_extracted_data" class="button">View Extracted Data</a>
+
+      {% else %}
+      <!-- Introductory Page -->
+      <div id="upload-prompt">
+        <p>
+          <b>Instructions: </b>Upload PDF(s) of the following forms to calculate
+          a US Income Tax Return.
+          <br>
+          (NOTE: This app only works for forms from 2020-2021.)
+        </p>
+        <div class="supported-forms">
+          <ul>
+            <li>
+              <a href="https://www.irs.gov/forms-pubs/about-form-w-2">W-2</a>
+            </li>
+            <li>
+              <a href="https://www.irs.gov/forms-pubs/about-form-1099-int"
+                >1099-INT</a
+              >
+            </li>
+            <li>
+              <a href="https://www.irs.gov/forms-pubs/about-form-1099-div"
+                >1099-DIV</a
+              >
+            </li>
+            <li>
+              <a href="https://www.irs.gov/forms-pubs/about-form-1099-misc"
+                >1099-MISC</a
+              >
+            </li>
+            <li>
+              <a href="https://www.irs.gov/forms-pubs/about-form-1099-nec"
+                >1099-NEC</a
+              >
+            </li>
+          </ul>
+        </div>
+        <hr />
+
+        <form
+          id="upload-documents"
+          action="/file_upload"
+          method="post"
+          enctype="multipart/form-data"
+        >
+          <label for="file">Upload your file(s)</label>
+          <input type="file" name="files" multiple />
+          <input type="submit" value="Upload" />
+        </form>
+        <hr />
+      </div>
+      
+      <div class="container">
+        <h1>Tax Deduction Calculator</h1>
+        <p>Calculate your deductions quickly and accurately.</p>
+        <form action="/calculate" method="get">
+            <button type="submit">Calculate Deductions</button>
+        </form>
+     </div>
+       <div id="chatbot-message">
+            💬 Any doubts about taxes? Click here</a>
+        </div>
+    <div>
+        <!-- Chatbot Embed -->
+        <script src="https://cdn.jsdelivr.net/gh/edenai/yodabot@e4f753f/embed.js?project=233753b0-1719-4795-9d2b-0c84742c7b65&provider=openai&model=gpt-4"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                let chatbotMessage = document.getElementById("chatbot-message");
+
+                function hideMessage() {
+                    chatbotMessage.style.display = "none";
+                }
+
+                function showMessage() {
+                    chatbotMessage.style.display = "block";
+                }
+
+                // Initially show message for 2 seconds, then hide
+                setTimeout(() => {
+                    hideMessage();
+                }, 2000);
+
+                // Detect when chatbot is opened by clicking the chatbot icon
+                document.addEventListener("click", function (event) {
+                    let chatbotIframe = document.querySelector("iframe");
+
+                    if (event.target.closest("#chatbot-message")) {
+                        // Message clicked, hide it immediately
+                        hideMessage();
+                    }
+
+                    if (chatbotIframe) {
+                        let isChatbotVisible = chatbotIframe.style.display !== "none";
+
+                        if (isChatbotVisible) {
+                            hideMessage(); // Chatbot opened, hide message
+                        }
+                    }
+                });
+
+                // Check every second if chatbot is closed, then show message again
+                setInterval(() => {
+                    let chatbotIframe = document.querySelector("iframe");
+                    if (chatbotIframe && chatbotIframe.style.display === "none") {
+                        showMessage(); // Show message only when chatbot is closed
+                    }
+                }, 1000);
+            });
+        </script>
+    </div>
+
+      
+      {% endif %}
+    </main>
+  </body>
+  <style>
+    html {
+      font-family: "Google Sans", "Roboto", "Helvetica", sans-serif !important;
+      text-align: center;
+    }
+
+    body main {
+      max-width: 60rem;
+    }
+
+    table > caption {
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+
+    div.supported-forms ul {
+      list-style-type: none;
+      text-decoration: none;
+    }
+
+    pre.status-messages {
+      text-align: left;
+    }
+
+    /* unvisited link */
+    a:link {
+      color: #4285f4;
+    }
+
+    /* visited link */
+    a:visited {
+      color: #a142f4;
+    }
+
+    /* mouse over link */
+    a:hover {
+      color: #ea4335;
+    }
+
+    header a {
+      color: black !important;
+      text-decoration: none;
+    }
+
+    table.tax-return {
+      background-color: #dcfffb;
+    }
+
+    @keyframes rotate {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @-webkit-keyframes rotate {
+      from {
+        -webkit-transform: rotate(0deg);
+      }
+
+      to {
+        -webkit-transform: rotate(360deg);
+      }
+    }
+
+    .loading-circle {
+      width: 100px;
+      height: 100px;
+      margin: 110px auto 0;
+      border: solid 10px #1a73e8;
+      border-radius: 50%;
+      border-right-color: transparent;
+      border-bottom-color: transparent;
+      -webkit-transition: all 0.5s ease-in;
+      -webkit-animation-name: rotate;
+      -webkit-animation-duration: 1s;
+      -webkit-animation-iteration-count: infinite;
+      -webkit-animation-timing-function: linear;
+
+      transition: all 0.5s ease-in;
+      animation-name: rotate;
+      animation-duration: 1s;
+      animation-iteration-count: infinite;
+      animation-timing-function: linear;
+    }
+  </style>
+
+  <script>
+    const fileUploadForm = document.getElementById("upload-documents");
+    const uploadPrompt = document.getElementById("upload-prompt");
+    const activeArea = document.getElementById("active-area");
+
+    // Update UI when Files are submitted
+    fileUploadForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      uploadPrompt.style.display = "none";
+
+      const loadingCircle = document.createElement("div");
+      loadingCircle.className = "loading-circle";
+      activeArea.appendChild(loadingCircle);
+
+      fileUploadForm.submit();
+    });
+  </script>
+</html>

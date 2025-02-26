@@ -1,0 +1,7 @@
+docai_active_processors:
+  FORM_PARSER_PROCESSOR: 4faf9e5ac0c79609
+docai_processor_location: us
+docai_project_id: tax-assistant2
+firestore:
+  collection: tax-docs
+  project_id: tax-assistant2
